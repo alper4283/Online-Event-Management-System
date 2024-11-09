@@ -1,0 +1,14 @@
+# Include common exclusions for Node.js, Python, or any other technologies you plan to use.
+
+# Node.js
+node_modules/
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# General
+.DS_Store
+*.log
+
