@@ -1,6 +1,7 @@
 <template>
     <div class="bg-white shadow-md rounded-lg p-6">
       <h2 class="text-xl font-bold mb-4">Events Table</h2>
+      <!-- Events Table -->
       <table class="table-auto w-full border-collapse border border-gray-300">
         <thead>
           <tr class="bg-gray-200">
@@ -39,19 +40,26 @@
           </tr>
         </tbody>
       </table>
+  
+      <!-- Event Actions -->
+      <EventActions />
     </div>
   </template>
   
   <script>
+  import EventActions from "./EventActions.vue";
+  
   export default {
     name: "EventTable",
+    components: {
+      EventActions,
+    },
     data() {
       return {
         events: [], // Placeholder for fetched events
       };
     },
     mounted() {
-      // Fetch events data when the component is mounted
       this.fetchEvents();
     },
     methods: {

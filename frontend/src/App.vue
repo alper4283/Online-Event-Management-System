@@ -6,7 +6,7 @@
     <!-- Main Content Section -->
     <main class="py-10">
       <div class="container mx-auto px-4">
-        <!-- Show Events Button -->
+        <!-- Toggle Events Button -->
         <button
           class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 mb-4"
           @click="toggleEvents"
@@ -14,24 +14,8 @@
           {{ showTable ? "Hide Events" : "View Events" }}
         </button>
 
-        <!-- Events Table and CRUD Operations -->
-        <div v-if="showTable">
-          <!-- Events Table -->
-          <EventTable />
-
-          <!-- Event Operations -->
-          <div class="mt-6 space-x-4">
-            <button class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600">
-              Add Event
-            </button>
-            <button class="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600">
-              Delete Event
-            </button>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600">
-              Update Event
-            </button>
-          </div>
-        </div>
+        <!-- Events Table -->
+        <EventTable v-if="showTable" />
       </div>
     </main>
 
@@ -54,7 +38,7 @@ export default {
   },
   data() {
     return {
-      showTable: false, // Toggles visibility of Events Table and operations
+      showTable: false, // Toggles visibility of Events Table
     };
   },
   methods: {
