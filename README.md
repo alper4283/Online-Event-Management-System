@@ -8,6 +8,12 @@ The Online Event Management System is a web-based platform designed to connect u
 - **Frontend**: Vue.js
 - **Database**: PostgreSQL
 
+## Database Schema
+
+Below is the ER diagram for our database schema:
+
+![ER Diagram](database/er_diagram.png)
+
 ## Project Structure
 The project is organized into the following main directories to facilitate development:
 
