@@ -1,6 +1,7 @@
 package org.example.backend.integrationTest;
 
 
+import org.example.backend.BaseTest;
 import org.example.backend.entity.Address;
 import org.example.backend.entity.Announcement;
 import org.example.backend.entity.Category;
@@ -12,18 +13,7 @@ import org.example.backend.entity.Registration;
 import org.example.backend.entity.Review;
 import org.example.backend.entity.Service;
 import org.example.backend.entity.User;
-import org.example.backend.repository.AddressRepository;
-import org.example.backend.repository.AnnouncementRepository;
-import org.example.backend.repository.CategoryRepository;
-import org.example.backend.repository.EventCategoryRepository;
-import org.example.backend.repository.EventRepository;
-import org.example.backend.repository.EventServiceRepository;
-import org.example.backend.repository.OrganizerRepository;
-import org.example.backend.repository.RegistrationRepository;
-import org.example.backend.repository.ReviewRepository;
-import org.example.backend.repository.ServiceRepository;
 import org.example.backend.repository.SpatialRefSysRepository;
-import org.example.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,42 +24,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class IntegrationTest {
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private AnnouncementRepository announcementRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private EventCategoryRepository eventCategoryRepository;
-
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private EventServiceRepository eventServiceRepository;
-
-    @Autowired
-    private OrganizerRepository organizerRepository;
-
-    @Autowired
-    private RegistrationRepository registrationRepository;
-
-    @Autowired
-    private ReviewRepository reviewRepository;
-
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+class IntegrationTest extends BaseTest {
 
     @Autowired
     private SpatialRefSysRepository spatialRefSysRepository;
+
+
     @Test
     public void testFetch10RecordsFromAllTables() {
         List<Address> addresses = addressRepository.findTop10();

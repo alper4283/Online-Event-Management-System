@@ -13,45 +13,51 @@ import org.example.backend.repository.ServiceRepository;
 import org.example.backend.repository.SpatialRefSysRepository;
 import org.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-public class BaseTest {
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private AnnouncementRepository announcementRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+@SpringBootTest
+@SpringJUnitConfig
+public abstract class BaseTest {
 
     @Autowired
-    private EventCategoryRepository eventCategoryRepository;
+    protected AddressRepository addressRepository;
 
     @Autowired
-    private EventRepository eventRepository;
+    protected AnnouncementRepository announcementRepository;
 
     @Autowired
-    private EventServiceRepository eventServiceRepository;
+    protected CategoryRepository categoryRepository;
 
     @Autowired
-    private OrganizerRepository organizerRepository;
+    protected EventCategoryRepository eventCategoryRepository;
 
     @Autowired
-    private RegistrationRepository registrationRepository;
+    protected EventRepository eventRepository;
 
     @Autowired
-    private ReviewRepository reviewRepository;
+    protected EventServiceRepository eventServiceRepository;
 
     @Autowired
-    private ServiceRepository serviceRepository;
+    protected OrganizerRepository organizerRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    protected RegistrationRepository registrationRepository;
+
+    @Autowired
+    protected ReviewRepository reviewRepository;
+
+    @Autowired
+    protected ServiceRepository serviceRepository;
+
+    @Autowired
+    protected UserRepository userRepository;
+
+    @Autowired
+    protected JdbcTemplate jdbcTemplate;
 
     @Autowired
     private SpatialRefSysRepository spatialRefSysRepository;
-
-
 
 }
