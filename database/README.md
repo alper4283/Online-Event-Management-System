@@ -18,6 +18,12 @@ To load data into the eventlink database from a dump file, first navigate to the
 psql -U postgres -d eventlink < database_dump.sql
 ```
 
+or
+
+```bash
+sudo -u postgres psql -d eventlink < database_dump.sql
+```
+
 # If You Want To Populate The Database From Scratch
 (If you don't want to populate the database from scratch you can omit this part of the README.md file.)
 
