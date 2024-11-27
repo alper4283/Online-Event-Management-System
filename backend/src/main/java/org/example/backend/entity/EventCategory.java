@@ -1,16 +1,16 @@
 package org.example.backend.entity;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 
 @Data
 @NoArgsConstructor
@@ -20,15 +20,16 @@ import lombok.Builder;
 @Table(name = "eventcategories")
 public class EventCategory {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private EventCategoryId id;
 
     @ManyToOne
-    @JoinColumn(name = "eventID")
+    @MapsId("eventId")
+    @JoinColumn(name = "eventid", nullable = false)
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "categoryID")
+    @MapsId("categoryId")
+    @JoinColumn(name = "categoryid", nullable = false)
     private Category category;
 }

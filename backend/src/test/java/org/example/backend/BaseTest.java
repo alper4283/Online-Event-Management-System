@@ -10,7 +10,6 @@ import org.example.backend.repository.OrganizerRepository;
 import org.example.backend.repository.RegistrationRepository;
 import org.example.backend.repository.ReviewRepository;
 import org.example.backend.repository.ServiceRepository;
-import org.example.backend.repository.SpatialRefSysRepository;
 import org.example.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,8 +55,5 @@ public abstract class BaseTest {
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private SpatialRefSysRepository spatialRefSysRepository;
 
 }

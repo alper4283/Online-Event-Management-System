@@ -1,5 +1,6 @@
 package org.example.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,8 +24,10 @@ public class Service {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long serviceID;
+    @Column(name = "serviceid")
+    private Long serviceId;
 
+    @Column(name = "servicetype", nullable = false, unique = true, length = 100)
     private String serviceType;
 
     @ManyToMany(mappedBy = "services")

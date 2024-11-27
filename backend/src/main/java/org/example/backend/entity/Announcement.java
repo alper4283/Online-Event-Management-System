@@ -1,5 +1,6 @@
 package org.example.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,10 +8,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -22,12 +23,16 @@ public class Announcement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long announcementID;
+    @Column(name = "announcementid")
+    private Long announcementId;
 
+    @Column(name = "content", columnDefinition = "text")
     private String content;
+
+    @Column(name = "date")
     private String date;
 
     @ManyToOne
-    @JoinColumn(name = "eventID")
+    @JoinColumn(name = "eventid", referencedColumnName = "eventid")
     private Event event;
 }

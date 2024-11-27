@@ -1,10 +1,12 @@
 package org.example.backend.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -25,20 +27,28 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userID;
+    @Column(name = "userid")
+    private Long userId;
 
+    @Column(name = "first", nullable = false, length = 255)
     private String firstName;
+
+    @Column(name = "last", nullable = false, length = 255)
     private String lastName;
-    private String name;
+
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
+
+    @Column(name = "phone", length = 30)
     private String phone;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "addressid", referencedColumnName = "addressid")
     private Address address;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Registration> registrations;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
 }

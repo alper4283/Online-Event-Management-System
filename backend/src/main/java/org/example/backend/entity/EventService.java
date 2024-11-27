@@ -1,11 +1,10 @@
 package org.example.backend.entity;
 
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,15 +19,16 @@ import lombok.NoArgsConstructor;
 @Table(name = "eventservices")
 public class EventService {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private EventServiceId id;
 
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
+    @MapsId("eventId")
+    @JoinColumn(name = "eventid", nullable = false)
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
+    @MapsId("serviceId")
+    @JoinColumn(name = "serviceid", nullable = false)
     private Service service;
 }
