@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Endpoint to retrieve filtered events
 app.post("/api/events/filter", async (req, res) => {
-  const { category, startDate, endDate, city, organizer } = req.body;
+  const { category, startDate, endDate, city, country, organizer } = req.body; // Added country
 
   console.log("Incoming filter request:", req.body);
 
@@ -57,6 +57,11 @@ app.post("/api/events/filter", async (req, res) => {
       params.push(city);
       paramIndex++;
     }
+    if (country) { // Added country filter
+      query += ` AND a.country = $${paramIndex}`;
+      params.push(country);
+      paramIndex++;
+    }
     if (organizer) {
       query += ` AND e.organizedby = $${paramIndex}`;
       params.push(organizer);
@@ -76,6 +81,7 @@ app.post("/api/events/filter", async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve events" });
   }
 });
+
 
 
 

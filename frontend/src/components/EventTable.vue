@@ -39,6 +39,19 @@
           />
         </div>
 
+        <!-- Country Filter -->
+        <div>
+          <label for="country" class="block text-gray-700">Country</label>
+          <input
+            v-model="filters.country"
+            type="text"
+            id="country"
+            class="w-full border border-gray-300 rounded px-4 py-2"
+            placeholder="Enter country"
+          />
+        </div>
+
+
         <!-- City Filter -->
         <div>
           <label for="city" class="block text-gray-700">City</label>
