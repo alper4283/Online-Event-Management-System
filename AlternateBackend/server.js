@@ -128,6 +128,55 @@ app.delete("/api/events/:id", async (req, res) => {
   }
 });
 
+app.put("/api/events/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, capacity } = req.body; // Only include the fields you need to update
+
+  try {
+    // Initialize query parts
+    let query = "UPDATE events SET ";
+    const updates = [];
+    const params = [];
+    let paramIndex = 1;
+
+    // Dynamically add fields to the query if they are provided
+    if (title) {
+      updates.push(`title = $${paramIndex}`);
+      params.push(title);
+      paramIndex++;
+    }
+    if (capacity) {
+      updates.push(`capacity = $${paramIndex}`);
+      params.push(capacity);
+      paramIndex++;
+    }
+
+    // If no fields are provided, return an error
+    if (updates.length === 0) {
+      return res.status(400).json({ error: "No fields provided for update." });
+    }
+
+    // Construct the full query
+    query += updates.join(", ");
+    query += ` WHERE eventid = $${paramIndex} RETURNING *`;
+    params.push(id);
+
+    // Execute the query
+    const result = await pool.query(query, params);
+
+    if (result.rowCount > 0) {
+      res.status(200).json(result.rows[0]);
+    } else {
+      res.status(404).json({ error: "Event not found." });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update event." });
+  }
+});
+
+
+
 
 // Start the server
 app.listen(PORT, () => {
