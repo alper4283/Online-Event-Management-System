@@ -74,10 +74,18 @@ CREATE TABLE Events (
     StartTime TIME NOT NULL,
     EndTime TIME,
     AddressID INT NOT NULL,
-    OrganizedBy INT NOT NULL,
+
     Price FLOAT CHECK (Price >= 0),
-    FOREIGN KEY (AddressID) REFERENCES Address(AddressID),
-    FOREIGN KEY (OrganizedBy) REFERENCES Organizers(OrganizerID)
+    FOREIGN KEY (AddressID) REFERENCES Address(AddressID)
+);
+
+-- Etkinlik ve Organizator ilişkilendirme
+CREATE TABLE EventOrganizators (
+    EventID INT NOT NULL,
+    OrganizerID INT NOT NULL,
+    PRIMARY KEY (EventID, OrganizerID),
+    FOREIGN KEY (EventID) REFERENCES Events(EventID),
+    FOREIGN KEY (OrganizerID) REFERENCES Organizers(OrganizerID)
 );
 
 -- Kategoriler tablosu

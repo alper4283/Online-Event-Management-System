@@ -8,11 +8,37 @@ from datetime import datetime, timedelta
 fake = Faker()
 
 # Veritabanı bağlantı parametreleri
-DB_NAME = "db2"        
+DB_NAME = "db5"        
 DB_USER = "postgres"   
 DB_PASSWORD = "arda"   
 DB_HOST = "localhost"
 DB_PORT = "5432"
+#==========================================================================================================
+def insert_event_organizators(event_ids, organizer_ids, max_organizers_per_event=3):
+    event_organizators = []
+    for event_id in event_ids:
+        num_organizers = random.randint(1, max_organizers_per_event)
+        if len(organizer_ids) < num_organizers:
+            selected_organizers = organizer_ids
+        else:
+            selected_organizers = random.sample(organizer_ids, num_organizers)
+        for organizer_id in selected_organizers:
+            event_organizators.append((event_id, organizer_id))
+    
+    insert_query = """
+        INSERT INTO EventOrganizators (EventID, OrganizerID)
+        VALUES (%s, %s)
+        ON CONFLICT (EventID, OrganizerID) DO NOTHING;
+    """
+    
+    try:
+        for eo in event_organizators:
+            cursor.execute(insert_query, eo)
+        conn.commit()
+        print(f"Inserted {len(event_organizators)} event-organizer relationships.")
+    except Exception as e:
+        conn.rollback()
+        print("Error inserting event-organizators:", e)
 
 #==========================================================================================================
 #   Events tablosunun Description (Açıklama) alanı için içerik oluşturma bileşenleri:
@@ -713,7 +739,8 @@ def insert_services():
         print("Error inserting services:", e)
     return service_ids
 
-def insert_events(n, address_ids, organizer_ids):
+def insert_events(n, address_ids):
+
     # Etkinlikleri ekleme fonksiyonu
     event_types = [
         'Hackathon', 'Concert', 'Sports', 'Conference', 'Theatre',
@@ -752,15 +779,17 @@ def insert_events(n, address_ids, organizer_ids):
             end_time = None
         
         address_id = random.choice(address_ids)
-        organized_by = random.choice(organizer_ids)
+        #organized_by = random.choice(organizer_ids)
         price = round(random.uniform(10.0, 500.0), 2)
-        events.append((title, description, event_type, capacity, date, start_time, end_time, address_id, organized_by, price))
+        events.append((title, description, event_type, capacity, date, start_time, end_time, address_id, price))
+
     
     insert_query = """
-        INSERT INTO Events (Title, Description, EventType, Capacity, Date, StartTime, EndTime, AddressID, OrganizedBy, Price)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO Events (Title, Description, EventType, Capacity, Date, StartTime, EndTime, AddressID, Price)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING EventID, Date;
     """
+
     
     event_ids = []
     past_event_ids = []
@@ -996,7 +1025,13 @@ if __name__ == "__main__":
         
         # Adım 6: Etkinlikleri ekle
         num_events = num_events_value  # İhtiyaca göre ayarlayın
-        event_ids, past_event_ids, future_event_ids = insert_events(num_events, address_ids, organizer_ids)
+        event_ids, past_event_ids, future_event_ids = insert_events(num_events, address_ids)
+
+        
+
+        # Step X: Insert EventOrganizators                  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        insert_event_organizators(event_ids, organizer_ids)
+
         
         if not event_ids:
             raise Exception("No events were inserted. Aborting population script.")
