@@ -87,35 +87,40 @@
           <th class="border border-gray-300 px-4 py-2">Category</th>
           <th class="border border-gray-300 px-4 py-2">Organizator</th>
           <th class="border border-gray-300 px-4 py-2">Address</th>
+          <th class="border border-gray-300 px-4 py-2">Date</th>
+          <th class="border border-gray-300 px-4 py-2">Time Interval</th>
           <th class="border border-gray-300 px-4 py-2">Services</th>
           <th class="border border-gray-300 px-4 py-2">Announcements</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="event in events" :key="event.id">
-          <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.category }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.organizer }}</td>
-          <td class="border border-gray-300 px-4 py-2">
-            {{ event.address.city }}, {{ event.address.country }}
-          </td>
-          <td class="border border-gray-300 px-4 py-2">
-  <ul>
-    <li v-for="service in event.services" :key="service">
-      {{ service }}
-    </li>
-  </ul>
-</td>
-<td class="border border-gray-300 px-4 py-2">
-  <ul>
-    <li v-for="announcement in event.announcements" :key="announcement">
-      {{ announcement }}
-    </li>
-  </ul>
-</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.category }}</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.organizer }}</td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ event.address.city }}, {{ event.address.country }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ formatDate(event.date) }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ formatTime(event.starttime) }} - {{ formatTime(event.endtime) }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    <ul>
+      <li v-for="service in event.services" :key="service">{{ service }}</li>
+    </ul>
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    <ul>
+      <li v-for="announcement in event.announcements" :key="announcement">{{ announcement }}</li>
+    </ul>
+  </td>
+</tr>
 
-        </tr>
+
       </tbody>
     </table>
   </div>
@@ -142,37 +147,53 @@ export default {
     this.fetchCategories();
   },
   methods: {
-    async fetchOrganizers() {
-      try {
-        const response = await fetch("http://localhost:3000/api/organizers");
-        this.organizers = await response.json();
-      } catch (error) {
-        console.error("Error fetching organizers:", error);
-      }
-    },
-    async fetchCategories() {
-      try {
-        const response = await fetch("http://localhost:3000/api/categories");
-        this.categories = await response.json();
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    },
-    async applyFilters() {
-      try {
-        const response = await fetch("http://localhost:3000/api/events/filter", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.filters),
-        });
-        this.events = await response.json();
-      } catch (error) {
-        console.error("Error fetching filtered events:", error);
-      }
-    },
+  async fetchOrganizers() {
+    try {
+      const response = await fetch("http://localhost:3000/api/organizers");
+      this.organizers = await response.json();
+    } catch (error) {
+      console.error("Error fetching organizers:", error);
+    }
   },
+  async fetchCategories() {
+    try {
+      const response = await fetch("http://localhost:3000/api/categories");
+      this.categories = await response.json();
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  },
+  async applyFilters() {
+    try {
+      const response = await fetch("http://localhost:3000/api/events/filter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(this.filters),
+      });
+      this.events = await response.json();
+    } catch (error) {
+      console.error("Error fetching filtered events:", error);
+    }
+  },
+  formatTime(time) {
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
+    const period = +hours < 12 ? "AM" : "PM";
+    const formattedHours = +hours % 12 || 12;
+    return `${formattedHours}:${minutes} ${period}`;
+  },
+  formatDate(date) {
+    if (!date) return "N/A";
+    const eventDate = new Date(date);
+    return eventDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  },
+},
 };
 </script>
 
