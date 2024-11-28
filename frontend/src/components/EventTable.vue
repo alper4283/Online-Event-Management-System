@@ -132,10 +132,10 @@
       <li v-for="announcement in event.announcements" :key="announcement">{{ announcement }}</li>
     </ul>
   </td>
-  <td class="border border-gray-300 px-4 py-2 flex justify-center space-x-2">
+  <td class="border border-gray-300 px-4 py-2 flex flex-col justify-center items-center space-y-2">
   <!-- Edit Button -->
   <button
-    class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+    class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
     @click="editEvent(event)"
   >
     Edit
@@ -143,12 +143,13 @@
 
   <!-- Delete Button -->
   <button
-    class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
     @click="deleteEvent(event.id)"
   >
     Delete
   </button>
 </td>
+
 </tr>
 
 
@@ -182,7 +183,7 @@ export default {
     editEvent(event) {
     this.$emit("edit-event", event); // Emit event data to the parent component
   },
-  
+
     async deleteEvent(eventId) {
     // Confirm deletion with the user
     if (!confirm("Are you sure you want to delete this event?")) return;
