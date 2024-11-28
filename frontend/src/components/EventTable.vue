@@ -104,6 +104,7 @@
           <th class="border border-gray-300 px-4 py-2">Time Interval</th>
           <th class="border border-gray-300 px-4 py-2">Services</th>
           <th class="border border-gray-300 px-4 py-2">Announcements</th>
+          <th class="border border-gray-300 px-4 py-2">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -131,7 +132,16 @@
       <li v-for="announcement in event.announcements" :key="announcement">{{ announcement }}</li>
     </ul>
   </td>
+  <td class="border border-gray-300 px-4 py-2 flex justify-center">
+    <button
+      class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+      @click="deleteEvent(event.id)"
+    >
+      Delete
+    </button>
+  </td>
 </tr>
+
 
 
       </tbody>
@@ -160,6 +170,28 @@ export default {
     this.fetchCategories();
   },
   methods: {
+    async deleteEvent(eventId) {
+    // Confirm deletion with the user
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      // Send DELETE request to the backend
+      const response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Remove the deleted event from the table
+        this.events = this.events.filter(event => event.id !== eventId);
+        alert("Event deleted successfully!");
+      } else {
+        alert("Failed to delete event.");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("An error occurred while deleting the event.");
+    }
+  },
   async fetchOrganizers() {
     try {
       const response = await fetch("http://localhost:3000/api/organizers");

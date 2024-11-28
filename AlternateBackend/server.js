@@ -111,6 +111,24 @@ app.get("/api/organizers", async (req, res) => {
   }
 });
 
+app.delete("/api/events/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query("DELETE FROM events WHERE eventid = $1", [id]);
+
+    if (result.rowCount > 0) {
+      res.status(200).json({ message: "Event deleted successfully." });
+    } else {
+      res.status(404).json({ error: "Event not found." });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete event." });
+  }
+});
+
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
