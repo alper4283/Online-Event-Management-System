@@ -12,60 +12,73 @@ app.use(bodyParser.json());
 
 // Endpoint to retrieve filtered events
 app.post("/api/events/filter", async (req, res) => {
-    const { category, startDate, endDate, city, organizer } = req.body;
-  
-    console.log("Incoming filter request:", req.body); // Debugging request
-  
-    try {
-      // Base query
-      let query = `
-  SELECT 
-    e.eventid AS id, e.title AS name, e.capacity, e.eventtype AS category, 
-    e.description, e.date, e.starttime, e.endtime,
-    o.name AS organizer,
-    json_build_object('city', a.city, 'country', a.country) AS address
-  FROM events e
-  JOIN organizers o ON e.organizedby = o.organizerid
-  JOIN address a ON e.addressid = a.addressid
-  WHERE 1=1
-`;
+  const { category, startDate, endDate, city, organizer } = req.body;
 
-      const params = [];
-      let paramIndex = 1;
-  
-      // Add filters dynamically
-      if (category) {
-        query += ` AND e.eventtype = $${paramIndex}`;
-        params.push(category);
-        paramIndex++;
-      }
-      if (startDate && endDate) {
-        query += ` AND e.date BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
-        params.push(startDate, endDate);
-        paramIndex += 2;
-      }
-      if (city) {
-        query += ` AND a.city = $${paramIndex}`;
-        params.push(city);
-        paramIndex++;
-      }
-      if (organizer) {
-        query += ` AND e.organizedby = $${paramIndex}`;
-        params.push(organizer);
-        paramIndex++;
-      }
-  
-      // Execute the query
-      const result = await pool.query(query, params);
-  
-      console.log("Response being sent to frontend:", result.rows); // Debugging response
-  
-      res.json(result.rows);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Failed to retrieve events" });
+  console.log("Incoming filter request:", req.body);
+
+  try {
+    let query = `
+      SELECT 
+        e.eventid AS id, e.title AS name, e.capacity, e.description, e.eventtype AS category, 
+        e.date, e.starttime, e.endtime,
+        o.name AS organizer,
+        json_build_object(
+          'city', COALESCE(a.city, 'Unknown'),
+          'country', COALESCE(a.country, 'Unknown')
+        ) AS address,
+        ARRAY_AGG(DISTINCT c.name) AS categories,
+        ARRAY_AGG(DISTINCT s.servicetype) FILTER (WHERE s.servicetype IS NOT NULL) AS services,
+        ARRAY_AGG(DISTINCT an.content) FILTER (WHERE an.content IS NOT NULL) AS announcements
+      FROM events e
+      JOIN organizers o ON e.organizedby = o.organizerid
+      LEFT JOIN address a ON e.addressid = a.addressid
+      LEFT JOIN eventcategories ec ON e.eventid = ec.eventid
+      LEFT JOIN categories c ON ec.categoryid = c.categoryid
+      LEFT JOIN eventservices es ON e.eventid = es.eventid
+      LEFT JOIN services s ON es.serviceid = s.serviceid
+      LEFT JOIN announcements an ON an.eventid = e.eventid
+      WHERE 1=1
+    `;
+    const params = [];
+    let paramIndex = 1;
+
+    if (category) {
+      query += ` AND c.name = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
     }
-  });
+    if (startDate && endDate) {
+      query += ` AND e.date BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
+      params.push(startDate, endDate);
+      paramIndex += 2;
+    }
+    if (city) {
+      query += ` AND a.city = $${paramIndex}`;
+      params.push(city);
+      paramIndex++;
+    }
+    if (organizer) {
+      query += ` AND e.organizedby = $${paramIndex}`;
+      params.push(organizer);
+      paramIndex++;
+    }
+
+    query += `
+      GROUP BY e.eventid, o.name, a.city, a.country
+    `;
+
+    const result = await pool.query(query, params);
+    console.log("Response being sent to frontend:", result.rows);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve events" });
+  }
+});
+
+
+
   
   
   

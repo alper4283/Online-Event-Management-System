@@ -96,24 +96,25 @@
           <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ event.category }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.organizator }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ event.organizer }}</td>
           <td class="border border-gray-300 px-4 py-2">
             {{ event.address.city }}, {{ event.address.country }}
           </td>
           <td class="border border-gray-300 px-4 py-2">
-            <ul>
-              <li v-for="service in event.services" :key="service.id">
-                {{ service.name }}
-              </li>
-            </ul>
-          </td>
-          <td class="border border-gray-300 px-4 py-2">
-            <ul>
-              <li v-for="announcement in event.announcements" :key="announcement.id">
-                {{ announcement.content }}
-              </li>
-            </ul>
-          </td>
+  <ul>
+    <li v-for="service in event.services" :key="service">
+      {{ service }}
+    </li>
+  </ul>
+</td>
+<td class="border border-gray-300 px-4 py-2">
+  <ul>
+    <li v-for="announcement in event.announcements" :key="announcement">
+      {{ announcement }}
+    </li>
+  </ul>
+</td>
+
         </tr>
       </tbody>
     </table>
