@@ -6,22 +6,32 @@
     <!-- Main Content Section -->
     <main class="py-10">
       <div class="container mx-auto px-4">
-        <!-- Toggle Events Button -->
-        <button
-          class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 mb-4"
-          @click="toggleEvents"
-        >
-          {{ showTable ? "Hide Events" : "View Events" }}
-        </button>
+        <!-- Buttons Section -->
+        <div class="flex space-x-4 mb-4">
+          <!-- Toggle Events Button -->
+          <button
+            class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600"
+            @click="toggleEvents"
+          >
+            {{ showTable ? "Hide Events" : "View Events" }}
+          </button>
+
+          <!-- Add Event Button -->
+          <button
+            class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
+            @click="openCreateEventForm"
+          >
+            Add Event
+          </button>
+        </div>
 
         <!-- Events Table -->
         <EventTable 
-        ref="eventTable" 
-        v-if="showTable" 
-        @edit-event="openEditForm" 
-        @refresh-events="refreshEvents" 
-      />
-
+          ref="eventTable" 
+          v-if="showTable" 
+          @edit-event="openEditForm" 
+          @refresh-events="refreshEvents" 
+        />
       </div>
     </main>
 
@@ -31,8 +41,14 @@
       :event="selectedEvent"
       @update-event="updateEventInTable"
       @close="closeEditForm"
-/>
+    />
 
+    <!-- Create Event Form -->
+    <CreateEventForm
+      v-if="creatingEvent"
+      @close="closeCreateEventForm"
+      @refresh-events="refreshEvents"
+    />
 
     <!-- Footer Section -->
     <AppFooter />
@@ -44,6 +60,7 @@ import AppHeader from "./components/AppHeader.vue";
 import AppFooter from "./components/AppFooter.vue";
 import EventTable from "./components/EventTable.vue";
 import EditEventForm from "./components/EditEventForm.vue";
+import CreateEventForm from "./components/CreateEventForm.vue";
 
 export default {
   name: "App",
@@ -52,66 +69,72 @@ export default {
     AppFooter,
     EventTable,
     EditEventForm,
+    CreateEventForm,
   },
   data() {
     return {
       showTable: false, // Toggles visibility of Events Table
       selectedEvent: null, // Holds the event being edited
+      creatingEvent: false, // Toggles visibility of Create Event Form
     };
   },
   methods: {
     refreshEvents() {
-  console.log("Refresh events triggered.");
-  if (this.showTable) {
-    fetch("http://localhost:3000/api/events/filter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}), // Fetch all events with no filters
-    })
-      .then(response => response.json())
-      .then(updatedEvents => {
-        const eventTable = this.$refs.eventTable;
-        if (eventTable) {
-          eventTable.events = updatedEvents.map(event => ({
-            ...event,
-            id: event.eventid, // Map eventid to id for consistency
-          }));
-        } else {
-          console.warn("EventTable reference is undefined.");
-        }
-      })
-      .catch(error => {
-        console.error("Error refreshing events:", error);
-      });
-  }
-},
+      console.log("Refresh events triggered.");
+      if (this.showTable) {
+        fetch("http://localhost:3000/api/events/filter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}), // Fetch all events with no filters
+        })
+          .then(response => response.json())
+          .then(updatedEvents => {
+            const eventTable = this.$refs.eventTable;
+            if (eventTable) {
+              eventTable.events = updatedEvents.map(event => ({
+                ...event,
+                id: event.eventid, // Map eventid to id for consistency
+              }));
+            } else {
+              console.warn("EventTable reference is undefined.");
+            }
+          })
+          .catch(error => {
+            console.error("Error refreshing events:", error);
+          });
+      }
+    },
+    toggleEvents() {
+      this.showTable = !this.showTable;
+    },
+    openEditForm(event) {
+      this.selectedEvent = { ...event };
+    },
+    closeEditForm() {
+      this.selectedEvent = null;
+    },
+    updateEventInTable(updatedEvent) {
+      const eventTable = this.$refs.eventTable;
+      if (!eventTable) {
+        console.error("EventTable reference is undefined.");
+        return;
+      }
 
-  toggleEvents() {
-    this.showTable = !this.showTable;
+      const index = eventTable.events.findIndex(event => event.id === updatedEvent.id);
+      if (index !== -1) {
+        eventTable.events.splice(index, 1, updatedEvent); // Replace the old event with the updated one
+      } else {
+        console.warn("Event not found in the table.");
+      }
+    },
+    openCreateEventForm() {
+      this.creatingEvent = true;
+    },
+    closeCreateEventForm() {
+      this.creatingEvent = false;
+    },
   },
-  openEditForm(event) {
-    this.selectedEvent = { ...event };
-  },
-  closeEditForm() {
-    this.selectedEvent = null;
-  },
-  updateEventInTable(updatedEvent) {
-    const eventTable = this.$refs.eventTable;
-    if (!eventTable) {
-      console.error("EventTable reference is undefined.");
-      return;
-    }
-
-    const index = eventTable.events.findIndex(event => event.id === updatedEvent.id);
-    if (index !== -1) {
-      eventTable.events.splice(index, 1, updatedEvent); // Replace the old event with the updated one
-    } else {
-      console.warn("Event not found in the table.");
-    }
-  },
-},
-
 };
 </script>

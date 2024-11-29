@@ -185,6 +185,34 @@ app.put("/api/events/:id", async (req, res) => {
   }
 });
 
+app.get("/api/addresses", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT addressid AS id, city, country FROM address ORDER BY city, country"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to retrieve addresses" });
+  }
+});
+
+
+app.post("/api/events", async (req, res) => {
+  const { title, description, eventType, capacity, date, startTime, endTime, addressId, organizerId } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO events (title, description, eventtype, capacity, date, starttime, endtime, addressid, organizedby)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [title, description, eventType, capacity, date, startTime, endTime, addressId, organizerId]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create event." });
+  }
+});
 
 
 
