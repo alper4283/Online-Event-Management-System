@@ -268,7 +268,130 @@ def main():
 
     # Queries Utilizing Materialized Views
     materialized_queries = [
-        #TODO WRITE THE MATERIALIZED VIEW QUERIES AND THEIR SLOW COUNTERPARTS QUERIES
+        # Materialized View 1: mv_top_rated_events
+        {
+            'name': 'Top Rated Events Using Materialized View',
+            'query': """
+                -- Query using the materialized view
+                SELECT
+                    EventID,
+                    Title,
+                    AverageRating
+                FROM
+                    mv_top_rated_events
+                ORDER BY
+                    AverageRating DESC;
+            """,
+            'non_mv_query': """
+                -- Equivalent query without using the materialized view
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    AVG(r.Rating) AS AverageRating
+                FROM
+                    Events e
+                JOIN
+                    Reviews r ON e.EventID = r.EventID
+                GROUP BY
+                    e.EventID, e.Title
+                HAVING
+                    AVG(r.Rating) >= 7
+                ORDER BY
+                    AverageRating DESC;
+            """,
+            'params': None,
+            'description': 'Retrieve top-rated events.'
+        },
+        # Materialized View 2: mv_high_registration_events
+        {
+            'name': 'High Registration Events Using Materialized View',
+            'query': """
+                -- Query using the materialized view
+                SELECT
+                    EventID,
+                    Title,
+                    RegistrationCount
+                FROM
+                    mv_high_registration_events
+                ORDER BY
+                    RegistrationCount DESC;
+            """,
+            'non_mv_query': """
+                -- Equivalent query without using the materialized view
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    COUNT(r.UserID) AS RegistrationCount
+                FROM
+                    Events e
+                JOIN
+                    Registrations r ON e.EventID = r.EventID
+                GROUP BY
+                    e.EventID, e.Title
+                HAVING
+                    COUNT(r.UserID) >= 50
+                ORDER BY
+                    RegistrationCount DESC;
+            """,
+            'params': None,
+            'description': 'Retrieve events with high registration counts.'
+        },
+        # Materialized View 3: mv_events_with_location
+        {
+            'name': 'Closest Events Using Materialized View',
+            'query': """
+                -- Query using the materialized view
+                SELECT
+                    EventID,
+                    Title,
+                    Description,
+                    EventType,
+                    Capacity,
+                    Date,
+                    StartTime,
+                    EndTime,
+                    Price,
+                    ZipCode,
+                    City,
+                    Country,
+                    ST_Distance(Location, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) AS distance_meters
+                FROM
+                    mv_events_with_location
+                WHERE
+                    Date >= CURRENT_DATE
+                ORDER BY
+                    distance_meters
+                LIMIT 10;
+            """,
+            'non_mv_query': """
+                -- Equivalent query without using the materialized view
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    e.Description,
+                    e.EventType,
+                    e.Capacity,
+                    e.Date,
+                    e.StartTime,
+                    e.EndTime,
+                    e.Price,
+                    a.ZipCode,
+                    a.City,
+                    a.Country,
+                    ST_Distance(a.Location, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) AS distance_meters
+                FROM
+                    Events e
+                JOIN
+                    Address a ON e.AddressID = a.AddressID
+                WHERE
+                    e.Date >= CURRENT_DATE
+                ORDER BY
+                    distance_meters
+                LIMIT 10;
+            """,
+            'params': (26.433614, 24.5625355),  # User's longitude and latitude
+            'description': 'Retrieve the 10 closest upcoming events to a given location.'
+        },
     ]
 
     #TODO IMPLEMENT THE LOGIC THAT RUNS THE MATERIAL VIEW QUERIS ON DATABASE AND THEN EVALUEATES THEM 
