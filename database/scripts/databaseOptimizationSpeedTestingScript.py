@@ -29,8 +29,12 @@ def connect_db(db_config):
         sys.exit(1)
 
 def execute_query(cursor, query, params=None):
-    #TODO IMPLEMENT THE execute_query() FUNCTION
-    return
+    start_time = time.time()
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    return execution_time, rows
 
 def main():
     # Connect to indexed and non-indexed databases
