@@ -31,6 +31,14 @@
           >
             Add Address
           </button>
+
+          <!-- Add Organizer Button -->
+          <button
+            class="bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
+            @click="openCreateOrganizerForm"
+          >
+            Add Organizer
+          </button>
         </div>
 
         <!-- Events Table -->
@@ -65,6 +73,13 @@
       @refresh-addresses="refreshAddresses"
     />
 
+    <!-- Create Organizer Form -->
+    <CreateOrganizerForm
+      v-if="creatingOrganizer"
+      @close="closeCreateOrganizerForm"
+      @refresh-organizers="refreshOrganizers"
+    />
+
     <!-- Footer Section -->
     <AppFooter />
   </div>
@@ -77,6 +92,7 @@ import EventTable from "./components/EventTable.vue";
 import EditEventForm from "./components/EditEventForm.vue";
 import CreateEventForm from "./components/CreateEventForm.vue";
 import CreateAddressForm from "./components/CreateAddressForm.vue";
+import CreateOrganizerForm from "./components/CreateOrganizerForm.vue";
 
 export default {
   name: "App",
@@ -87,6 +103,7 @@ export default {
     EditEventForm,
     CreateEventForm,
     CreateAddressForm,
+    CreateOrganizerForm,
   },
   data() {
     return {
@@ -94,6 +111,7 @@ export default {
       selectedEvent: null, // Holds the event being edited
       creatingEvent: false, // Toggles visibility of Create Event Form
       creatingAddress: false, // Toggles visibility of Create Address Form
+      creatingOrganizer: false, // Toggles visibility of Create Organizer Form
     };
   },
   methods: {
@@ -161,6 +179,15 @@ export default {
     },
     refreshAddresses() {
       console.log("Addresses refreshed.");
+    },
+    openCreateOrganizerForm() {
+      this.creatingOrganizer = true;
+    },
+    closeCreateOrganizerForm() {
+      this.creatingOrganizer = false;
+    },
+    refreshOrganizers() {
+      console.log("Organizers refreshed.");
     },
   },
 };

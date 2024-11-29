@@ -247,6 +247,25 @@ app.post("/api/addresses", async (req, res) => {
   }
 });
 
+app.post("/api/organizers/create", async (req, res) => {
+  const { name, contact, rating } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO organizers (name, contact, rating)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [name, contact, rating]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create organizer." });
+  }
+});
+
+
+
 
 
 
