@@ -169,3 +169,16 @@ CREATE INDEX idx_reviews_eventid_rating ON Reviews(EventID, Rating);
 
 -- Registrations table indexes
 CREATE INDEX idx_registrations_userid ON Registrations(UserID);
+
+-- Full-text search index on Events
+CREATE INDEX idx_events_fulltext ON Events USING GIN (to_tsvector('english', Title || ' ' || Description));
+
+-- Junction tables indexes
+CREATE INDEX idx_eventorganizators_eventid ON EventOrganizators(EventID);
+CREATE INDEX idx_eventorganizators_organizerid ON EventOrganizators(OrganizerID);
+
+CREATE INDEX idx_eventcategories_eventid ON EventCategories(EventID);
+CREATE INDEX idx_eventcategories_categoryid ON EventCategories(CategoryID);
+
+CREATE INDEX idx_eventservices_eventid ON EventServices(EventID);
+CREATE INDEX idx_eventservices_serviceid ON EventServices(ServiceID);
