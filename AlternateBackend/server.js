@@ -12,21 +12,22 @@ app.use(bodyParser.json());
 
 // Endpoint to retrieve filtered events
 app.post("/api/events/filter", async (req, res) => {
-  const { category, startDate, endDate, city, country, organizer } = req.body; // Added country
+  const { category, startDate, endDate, city, country, organizer } = req.body;
 
   console.log("Incoming filter request:", req.body);
 
   try {
     let query = `
       SELECT 
-        e.eventid AS id, e.title AS name, e.capacity, e.description, e.eventtype AS category, 
+        e.eventid AS id, e.title AS name, e.capacity, e.description, 
+        e.eventtype AS eventType,  -- Keep eventType for clarity
         e.date, e.starttime, e.endtime,
         o.name AS organizer,
         json_build_object(
           'city', COALESCE(a.city, 'Unknown'),
           'country', COALESCE(a.country, 'Unknown')
         ) AS address,
-        ARRAY_AGG(DISTINCT c.name) AS categories,
+        ARRAY_AGG(DISTINCT c.name) AS categories, -- Retrieve all categories
         ARRAY_AGG(DISTINCT s.servicetype) FILTER (WHERE s.servicetype IS NOT NULL) AS services,
         ARRAY_AGG(DISTINCT an.content) FILTER (WHERE an.content IS NOT NULL) AS announcements
       FROM events e
@@ -39,14 +40,21 @@ app.post("/api/events/filter", async (req, res) => {
       LEFT JOIN announcements an ON an.eventid = e.eventid
       WHERE 1=1
     `;
+
     const params = [];
     let paramIndex = 1;
 
+    // Correct the category filter to use `categories.name`
     if (category) {
-      query += ` AND c.name = $${paramIndex}`;
+      query += ` AND EXISTS (
+        SELECT 1 FROM eventcategories ec2
+        JOIN categories c2 ON ec2.categoryid = c2.categoryid
+        WHERE ec2.eventid = e.eventid AND c2.name = $${paramIndex}
+      )`;
       params.push(category);
       paramIndex++;
     }
+
     if (startDate && endDate) {
       query += ` AND e.date BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
       params.push(startDate, endDate);
@@ -57,7 +65,7 @@ app.post("/api/events/filter", async (req, res) => {
       params.push(city);
       paramIndex++;
     }
-    if (country) { // Added country filter
+    if (country) {
       query += ` AND a.country = $${paramIndex}`;
       params.push(country);
       paramIndex++;
@@ -75,12 +83,14 @@ app.post("/api/events/filter", async (req, res) => {
     const result = await pool.query(query, params);
     console.log("Response being sent to frontend:", result.rows);
 
+    // Return the updated rows
     res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to retrieve events" });
   }
 });
+
 
 
 

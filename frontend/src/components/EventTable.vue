@@ -111,7 +111,11 @@
         <tr v-for="event in events" :key="event.id">
   <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
   <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
-  <td class="border border-gray-300 px-4 py-2">{{ event.category }}</td>
+  <td class="border border-gray-300 px-4 py-2">
+  <ul>
+    <li v-for="category in event.categories" :key="category">{{ category }}</li>
+  </ul>
+</td>
   <td class="border border-gray-300 px-4 py-2">{{ event.organizer }}</td>
   <td class="border border-gray-300 px-4 py-2">
     {{ event.address.city }}, {{ event.address.country }}
