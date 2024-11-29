@@ -394,7 +394,28 @@ def main():
         },
     ]
 
-    #TODO IMPLEMENT THE LOGIC THAT RUNS THE MATERIAL VIEW QUERIS ON DATABASE AND THEN EVALUEATES THEM 
+    # Execute and time the materialized view queries
+    for mq in materialized_queries:
+        print(f"Executing {mq['name']}")
+
+        # Using Materialized View
+        if mq['params']:
+            time_mv, _ = execute_query(cursor_indexed, mq['query'], mq['params'])
+            time_non_mv, _ = execute_query(cursor_indexed, mq['non_mv_query'], mq['params'])
+        else:
+            time_mv, _ = execute_query(cursor_indexed, mq['query'])
+            time_non_mv, _ = execute_query(cursor_indexed, mq['non_mv_query'])
+
+        # Calculate improvement
+        improvement = ((time_non_mv - time_mv) / time_non_mv) * 100 if time_non_mv != 0 else 0
+
+        results.append({
+            'Query': mq['name'],
+            'Description': mq['description'],
+            'Time Using MV (s)': time_mv,
+            'Time Without MV (s)': time_non_mv,
+            'Improvement (%)': improvement
+        })
 
     # Close database connections
     cursor_indexed.close()
