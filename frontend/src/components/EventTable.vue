@@ -39,6 +39,19 @@
           />
         </div>
 
+        <!-- Country Filter -->
+        <div>
+          <label for="country" class="block text-gray-700">Country</label>
+          <input
+            v-model="filters.country"
+            type="text"
+            id="country"
+            class="w-full border border-gray-300 rounded px-4 py-2"
+            placeholder="Enter country"
+          />
+        </div>
+
+
         <!-- City Filter -->
         <div>
           <label for="city" class="block text-gray-700">City</label>
@@ -87,34 +100,64 @@
           <th class="border border-gray-300 px-4 py-2">Category</th>
           <th class="border border-gray-300 px-4 py-2">Organizator</th>
           <th class="border border-gray-300 px-4 py-2">Address</th>
+          <th class="border border-gray-300 px-4 py-2">Date</th>
+          <th class="border border-gray-300 px-4 py-2">Time Interval</th>
           <th class="border border-gray-300 px-4 py-2">Services</th>
           <th class="border border-gray-300 px-4 py-2">Announcements</th>
+          <th class="border border-gray-300 px-4 py-2">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="event in events" :key="event.id">
-          <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.category }}</td>
-          <td class="border border-gray-300 px-4 py-2">{{ event.organizator }}</td>
-          <td class="border border-gray-300 px-4 py-2">
-            {{ event.address.city }}, {{ event.address.country }}
-          </td>
-          <td class="border border-gray-300 px-4 py-2">
-            <ul>
-              <li v-for="service in event.services" :key="service.id">
-                {{ service.name }}
-              </li>
-            </ul>
-          </td>
-          <td class="border border-gray-300 px-4 py-2">
-            <ul>
-              <li v-for="announcement in event.announcements" :key="announcement.id">
-                {{ announcement.content }}
-              </li>
-            </ul>
-          </td>
-        </tr>
+  <td class="border border-gray-300 px-4 py-2">{{ event.name }}</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.capacity }}</td>
+  <td class="border border-gray-300 px-4 py-2">
+  <ul>
+    <li v-for="category in event.categories" :key="category">{{ category }}</li>
+  </ul>
+</td>
+  <td class="border border-gray-300 px-4 py-2">{{ event.organizer }}</td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ event.address.city }}, {{ event.address.country }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ formatDate(event.date) }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    {{ formatTime(event.starttime) }} - {{ formatTime(event.endtime) }}
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    <ul>
+      <li v-for="service in event.services" :key="service">{{ service }}</li>
+    </ul>
+  </td>
+  <td class="border border-gray-300 px-4 py-2">
+    <ul>
+      <li v-for="announcement in event.announcements" :key="announcement">{{ announcement }}</li>
+    </ul>
+  </td>
+  <td class="border border-gray-300 px-4 py-2 flex flex-col justify-center items-center space-y-2">
+  <!-- Edit Button -->
+  <button
+    class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full"
+    @click="editEvent(event)"
+  >
+    Edit
+  </button>
+
+  <!-- Delete Button -->
+  <button
+    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
+    @click="deleteEvent(event.id)"
+  >
+    Delete
+  </button>
+</td>
+
+</tr>
+
+
+
       </tbody>
     </table>
   </div>
@@ -141,37 +184,79 @@ export default {
     this.fetchCategories();
   },
   methods: {
-    async fetchOrganizers() {
-      try {
-        const response = await fetch("http://localhost:3000/api/organizers");
-        this.organizers = await response.json();
-      } catch (error) {
-        console.error("Error fetching organizers:", error);
-      }
-    },
-    async fetchCategories() {
-      try {
-        const response = await fetch("http://localhost:3000/api/categories");
-        this.categories = await response.json();
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    },
-    async applyFilters() {
-      try {
-        const response = await fetch("http://localhost:3000/api/events/filter", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.filters),
-        });
-        this.events = await response.json();
-      } catch (error) {
-        console.error("Error fetching filtered events:", error);
-      }
-    },
+    editEvent(event) {
+    this.$emit("edit-event", event); // Emit event data to the parent component
   },
+
+    async deleteEvent(eventId) {
+    // Confirm deletion with the user
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    try {
+      // Send DELETE request to the backend
+      const response = await fetch(`http://localhost:3000/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Remove the deleted event from the table
+        this.events = this.events.filter(event => event.id !== eventId);
+        alert("Event deleted successfully!");
+      } else {
+        alert("Failed to delete event.");
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("An error occurred while deleting the event.");
+    }
+  },
+  async fetchOrganizers() {
+    try {
+      const response = await fetch("http://localhost:3000/api/organizers");
+      this.organizers = await response.json();
+    } catch (error) {
+      console.error("Error fetching organizers:", error);
+    }
+  },
+  async fetchCategories() {
+    try {
+      const response = await fetch("http://localhost:3000/api/categories");
+      this.categories = await response.json();
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  },
+  async applyFilters() {
+    try {
+      const response = await fetch("http://localhost:3000/api/events/filter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(this.filters),
+      });
+      this.events = await response.json();
+    } catch (error) {
+      console.error("Error fetching filtered events:", error);
+    }
+  },
+  formatTime(time) {
+    if (!time) return "N/A";
+    const [hours, minutes] = time.split(":");
+    const period = +hours < 12 ? "AM" : "PM";
+    const formattedHours = +hours % 12 || 12;
+    return `${formattedHours}:${minutes} ${period}`;
+  },
+  formatDate(date) {
+    if (!date) return "N/A";
+    const eventDate = new Date(date);
+    return eventDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  },
+},
 };
 </script>
 
