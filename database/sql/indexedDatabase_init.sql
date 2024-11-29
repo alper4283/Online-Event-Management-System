@@ -182,3 +182,65 @@ CREATE INDEX idx_eventcategories_categoryid ON EventCategories(CategoryID);
 
 CREATE INDEX idx_eventservices_eventid ON EventServices(EventID);
 CREATE INDEX idx_eventservices_serviceid ON EventServices(ServiceID);
+
+-- Materialized Views
+
+-- Materialized View for Top Rated Events
+CREATE MATERIALIZED VIEW mv_top_rated_events AS
+SELECT
+    e.EventID,
+    e.Title,
+    AVG(r.Rating) AS AverageRating
+FROM
+    Events e
+JOIN
+    Reviews r ON e.EventID = r.EventID
+GROUP BY
+    e.EventID, e.Title
+HAVING
+    AVG(r.Rating) >= 8;
+
+-- Index on Materialized View
+CREATE INDEX idx_mv_top_rated_events_avg_rating ON mv_top_rated_events(AverageRating);
+
+-- Materialized View for High Registration Events
+CREATE MATERIALIZED VIEW mv_high_registration_events AS
+SELECT
+    e.EventID,
+    e.Title,
+    COUNT(r.UserID) AS RegistrationCount
+FROM
+    Events e
+JOIN
+    Registrations r ON e.EventID = r.EventID
+GROUP BY
+    e.EventID, e.Title
+HAVING
+    COUNT(r.UserID) >= 100;
+
+-- Index on Materialized View
+CREATE INDEX idx_mv_high_registration_events_count ON mv_high_registration_events(RegistrationCount);
+
+-- Materialized View for Events with Location (Facilitates Proximity Queries)
+CREATE MATERIALIZED VIEW mv_events_with_location AS
+SELECT
+    e.EventID,
+    e.Title,
+    e.Description,
+    e.EventType,
+    e.Capacity,
+    e.Date,
+    e.StartTime,
+    e.EndTime,
+    e.Price,
+    a.ZipCode,
+    a.City,
+    a.Country,
+    a.Location
+FROM
+    Events e
+JOIN
+    Address a ON e.AddressID = a.AddressID;
+
+-- Spatial Index on Materialized View
+CREATE INDEX idx_mv_events_with_location_location ON mv_events_with_location USING GIST (Location);
