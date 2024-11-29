@@ -23,6 +23,14 @@
           >
             Add Event
           </button>
+
+          <!-- Add Address Button -->
+          <button
+            class="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+            @click="openCreateAddressForm"
+          >
+            Add Address
+          </button>
         </div>
 
         <!-- Events Table -->
@@ -50,6 +58,13 @@
       @refresh-events="refreshEvents"
     />
 
+    <!-- Create Address Form -->
+    <CreateAddressForm
+      v-if="creatingAddress"
+      @close="closeCreateAddressForm"
+      @refresh-addresses="refreshAddresses"
+    />
+
     <!-- Footer Section -->
     <AppFooter />
   </div>
@@ -61,6 +76,7 @@ import AppFooter from "./components/AppFooter.vue";
 import EventTable from "./components/EventTable.vue";
 import EditEventForm from "./components/EditEventForm.vue";
 import CreateEventForm from "./components/CreateEventForm.vue";
+import CreateAddressForm from "./components/CreateAddressForm.vue";
 
 export default {
   name: "App",
@@ -70,12 +86,14 @@ export default {
     EventTable,
     EditEventForm,
     CreateEventForm,
+    CreateAddressForm,
   },
   data() {
     return {
       showTable: false, // Toggles visibility of Events Table
       selectedEvent: null, // Holds the event being edited
       creatingEvent: false, // Toggles visibility of Create Event Form
+      creatingAddress: false, // Toggles visibility of Create Address Form
     };
   },
   methods: {
@@ -134,6 +152,15 @@ export default {
     },
     closeCreateEventForm() {
       this.creatingEvent = false;
+    },
+    openCreateAddressForm() {
+      this.creatingAddress = true;
+    },
+    closeCreateAddressForm() {
+      this.creatingAddress = false;
+    },
+    refreshAddresses() {
+      console.log("Addresses refreshed.");
     },
   },
 };

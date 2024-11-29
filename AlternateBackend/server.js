@@ -230,6 +230,24 @@ app.post("/api/events", async (req, res) => {
   }
 });
 
+app.post("/api/addresses", async (req, res) => {
+  const { city, country, zipCode } = req.body;
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO address (city, country, zipcode)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [city, country, zipCode]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create address." });
+  }
+});
+
+
 
 
 
