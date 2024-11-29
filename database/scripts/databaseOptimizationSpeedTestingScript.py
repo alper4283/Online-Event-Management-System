@@ -48,7 +48,201 @@ def main():
 
     # 10 Common Queries Utilizing Indexes
     queries = [
-        #TODO WRITE THE 10 MOST COMMON QUERIES
+        {
+            'name': 'Query 1: Upcoming Events in a Specific City',
+            'query': """
+                -- Retrieve upcoming events in New York
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    e.Date,
+                    e.StartTime,
+                    e.EndTime,
+                    a.City,
+                    a.Country
+                FROM
+                    Events e
+                JOIN
+                    Address a ON e.AddressID = a.AddressID
+                WHERE
+                    a.City = %s AND
+                    e.Date >= CURRENT_DATE
+                ORDER BY
+                    e.Date, e.StartTime;
+            """,
+            'params': ('Holmeston',),
+            'description': 'Retrieve upcoming events in New York.'
+        },
+        {
+            'name': 'Query 2: Events by a Specific Organizer',
+            'query': """
+                -- Find events organized by Tech Innovators Inc.
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    e.Date,
+                    o.Name AS OrganizerName
+                FROM
+                    Events e
+                JOIN
+                    EventOrganizators eo ON e.EventID = eo.EventID
+                JOIN
+                    Organizers o ON eo.OrganizerID = o.OrganizerID
+                WHERE
+                    o.Name = %s
+                ORDER BY
+                    e.Date DESC;
+            """,
+            'params': ('Hall Inc',),
+            'description': 'Find events organized by Tech Innovators Inc.'
+        },
+        {
+            'name': 'Query 3: Events in a Specific Category',
+            'query': """
+                -- Get events in the Technology category
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    c.Name AS CategoryName,
+                    e.Date
+                FROM
+                    Events e
+                JOIN
+                    EventCategories ec ON e.EventID = ec.EventID
+                JOIN
+                    Categories c ON ec.CategoryID = c.CategoryID
+                WHERE
+                    c.Name = %s
+                ORDER BY
+                    e.Date;
+            """,
+            'params': ('Technology',),
+            'description': 'Get events in the Technology category.'
+        },
+        {
+            'name': 'Query 4: Events Offering a Specific Service',
+            'query': """
+                -- Find upcoming events offering Live Streaming
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    s.ServiceType,
+                    e.Date
+                FROM
+                    Events e
+                JOIN
+                    EventServices es ON e.EventID = es.EventID
+                JOIN
+                    Services s ON es.ServiceID = s.ServiceID
+                WHERE
+                    s.ServiceType = %s AND
+                    e.Date >= CURRENT_DATE
+                ORDER BY
+                    e.Date;
+            """,
+            'params': ('Catering',),
+            'description': 'Find upcoming events offering Live Streaming.'
+        },
+        {
+            'name': 'Query 5: Users Registered for a Specific Event',
+            'query': """
+                -- List users registered for a specific event
+                SELECT
+                    u.UserID,
+                    u.First,
+                    u.Last,
+                    r.Status,
+                    r.Date AS RegistrationDate
+                FROM
+                    Users u
+                JOIN
+                    Registrations r ON u.UserID = r.UserID
+                WHERE
+                    r.EventID = %s
+                ORDER BY
+                    r.Date;
+            """,
+            'params': (1,),  # Replace 123 with an actual EventID from your database
+            'description': 'List users registered for a specific event.'
+        },
+        {
+            'name': 'Query 6: Average Rating for a Specific Event',
+            'query': """
+                -- Get average rating for a specific event
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    AVG(r.Rating) AS AverageRating
+                FROM
+                    Events e
+                JOIN
+                    Reviews r ON e.EventID = r.EventID
+                WHERE
+                    e.EventID = %s
+                GROUP BY
+                    e.EventID, e.Title;
+            """,
+            'params': (1,),  # Replace 123 with an actual EventID from your database
+            'description': 'Get average rating for a specific event.'
+        },
+        {
+            'name': 'Query 7: Search Events by Keyword',
+            'query': """
+                -- Search events by keyword in title or description
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    e.Description,
+                    e.Date
+                FROM
+                    Events e
+                WHERE
+                    to_tsvector('english', e.Title || ' ' || e.Description) @@ plainto_tsquery('english', %s)
+                ORDER BY
+                    e.Date;
+            """,
+            'params': ('2024',),
+            'description': 'Search events by keyword in title or description.'
+        },
+        {
+            'name': 'Query 8: Events a User Has Registered For',
+            'query': """
+                -- Find events a user has registered for
+                SELECT
+                    e.EventID,
+                    e.Title,
+                    e.Date,
+                    r.Status
+                FROM
+                    Events e
+                JOIN
+                    Registrations r ON e.EventID = r.EventID
+                WHERE
+                    r.UserID = %s
+                ORDER BY
+                    e.Date;
+            """,
+            'params': (1,),  # Replace 456 with an actual UserID from your database
+            'description': 'Find events a user has registered for.'
+        },
+        {
+            'name': 'Query 9: Get Top-Rated Organizers',
+            'query': """
+                -- Get organizers with rating 8 or higher
+                SELECT
+                    o.OrganizerID,
+                    o.Name,
+                    o.Rating
+                FROM
+                    Organizers o
+                WHERE
+                    o.Rating >= %s
+                ORDER BY
+                    o.Rating DESC;
+            """,
+            'params': (7,),
+            'description': 'Get organizers with rating 8 or higher.'
+        }
     ]
 
     # Execute and time the queries on both databases
