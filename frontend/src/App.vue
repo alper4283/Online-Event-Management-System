@@ -39,6 +39,15 @@
           >
             Add Organizer
           </button>
+
+          <!-- Find Closest Events Button -->
+          <button
+            class="bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
+            @click="openFindClosestEventsForm"
+          >
+            Find Closest Events
+          </button>
+
         </div>
 
         <!-- Events Table -->
@@ -80,6 +89,13 @@
       @refresh-organizers="refreshOrganizers"
     />
 
+    <!-- Find Closest Events Form -->
+    <FindClosestEvents
+      v-if="findingClosestEvents"
+      @close="closeFindClosestEventsForm"
+    />
+
+
     <!-- Footer Section -->
     <AppFooter />
   </div>
@@ -93,6 +109,7 @@ import EditEventForm from "./components/EditEventForm.vue";
 import CreateEventForm from "./components/CreateEventForm.vue";
 import CreateAddressForm from "./components/CreateAddressForm.vue";
 import CreateOrganizerForm from "./components/CreateOrganizerForm.vue";
+import FindClosestEvents from "./components/FindClosestEvents.vue";
 
 export default {
   name: "App",
@@ -104,6 +121,7 @@ export default {
     CreateEventForm,
     CreateAddressForm,
     CreateOrganizerForm,
+    FindClosestEvents,
   },
   data() {
     return {
@@ -111,7 +129,8 @@ export default {
       selectedEvent: null, // Holds the event being edited
       creatingEvent: false, // Toggles visibility of Create Event Form
       creatingAddress: false, // Toggles visibility of Create Address Form
-      creatingOrganizer: false, // Toggles visibility of Create Organizer Form
+      creatingOrganizer: false,
+      findingClosestEvents: false, // Toggles visibility of Create Organizer Form
     };
   },
   methods: {
@@ -151,6 +170,12 @@ export default {
     closeEditForm() {
       this.selectedEvent = null;
     },
+    openFindClosestEventsForm() {
+    this.findingClosestEvents = true;
+  },
+  closeFindClosestEventsForm() {
+    this.findingClosestEvents = false;
+  },
     updateEventInTable(updatedEvent) {
       const eventTable = this.$refs.eventTable;
       if (!eventTable) {

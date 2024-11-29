@@ -266,6 +266,36 @@ app.post("/api/organizers/create", async (req, res) => {
 
 
 
+app.get("/api/events/closest/:addressId", async (req, res) => {
+  const { addressId } = req.params;
+
+  try {
+    const query = `
+      SELECT 
+        e.eventid AS id, 
+        e.title AS name, 
+        e.date,
+        e.starttime,
+        e.endtime,
+        a.city, 
+        a.country,
+        ST_Distance(a.location, target.location) AS distance
+      FROM events e
+      JOIN address a ON e.addressid = a.addressid
+      CROSS JOIN (SELECT location FROM address WHERE addressid = $1) AS target
+      WHERE a.location IS NOT NULL
+      ORDER BY distance
+      LIMIT 10;
+    `;
+
+    const result = await pool.query(query, [addressId]);
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Error fetching closest events:", err);
+    res.status(500).json({ error: "Failed to retrieve closest events." });
+  }
+});
 
 
 
