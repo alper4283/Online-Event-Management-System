@@ -43,6 +43,24 @@
             min="0"
             required
           />
+
+          <!-- Categories -->
+                <label for="categories" class="block text-gray-700">Categories:</label>
+                <select
+                v-model="selectedCategories"
+                id="categories"
+                class="border p-2 w-full mb-4"
+                multiple
+                >
+                <option
+                    v-for="category in categories"
+                    :key="category.id"
+                    :value="category.id"
+                >
+                    {{ category.name }}
+                </option>
+                </select>
+
   
           <!-- Date -->
           <label for="date" class="block text-gray-700">Date:</label>
@@ -130,74 +148,88 @@
     </div>
   </template>
   
-<script>
-export default {
-  data() {
-    return {
-      newEvent: {
-        title: "",
-        description: "",
-        eventType: "",
-        capacity: 0,
-        date: "",
-        startTime: "",
-        endTime: "",
-        addressId: "",
-        organizerId: "",
-      },
-      eventTypes: [
-        "Hackathon", "Concert", "Sports", "Conference", "Theatre",
-        "Workshop", "Festival", "Webinar", "Exhibition", "Meetup",
-        "Networking", "Seminar", "Tournament", "Charity", "Comedy",
-        "Dance", "Other"
-      ],
-      addresses: [], // Fetched dynamically from backend
-      organizers: [], // Fetched dynamically from backend
-    };
-  },
-  mounted() {
-    this.fetchAddresses();
-    this.fetchOrganizers();
-  },
-  methods: {
-    async fetchAddresses() {
-      try {
-        const response = await fetch("http://localhost:3000/api/addresses");
-        this.addresses = await response.json();
-      } catch (error) {
-        console.error("Error fetching addresses:", error);
-      }
+  <script>
+  export default {
+    data() {
+      return {
+        newEvent: {
+          title: "",
+          description: "",
+          eventType: "",
+          capacity: 0,
+          date: "",
+          startTime: "",
+          endTime: "",
+          addressId: "",
+          organizerId: "",
+        },
+        selectedCategories: [], // To hold selected categories
+        categories: [], // Dynamically fetched categories
+        addresses: [],
+        organizers: [],
+        eventTypes: [
+          "Hackathon", "Concert", "Sports", "Conference", "Theatre",
+          "Workshop", "Festival", "Webinar", "Exhibition", "Meetup",
+          "Networking", "Seminar", "Tournament", "Charity", "Comedy",
+          "Dance", "Other"
+        ],
+      };
     },
-    async fetchOrganizers() {
-      try {
-        const response = await fetch("http://localhost:3000/api/organizers");
-        this.organizers = await response.json();
-      } catch (error) {
-        console.error("Error fetching organizers:", error);
-      }
+    mounted() {
+      this.fetchCategories();
+      this.fetchAddresses();
+      this.fetchOrganizers();
     },
-    async createEvent() {
-      try {
-        const response = await fetch("http://localhost:3000/api/events", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.newEvent),
-        });
-
-        if (response.ok) {
-          alert("Event created successfully!");
-          this.$emit("refresh-events");
-          this.$emit("close");
-        } else {
-          alert("Failed to create event.");
+    methods: {
+      async fetchCategories() {
+        try {
+          const response = await fetch("http://localhost:3000/api/categories");
+          this.categories = await response.json();
+        } catch (error) {
+          console.error("Error fetching categories:", error);
         }
-      } catch (error) {
-        console.error("Error creating event:", error);
-      }
+      },
+      async fetchAddresses() {
+        try {
+          const response = await fetch("http://localhost:3000/api/addresses");
+          this.addresses = await response.json();
+        } catch (error) {
+          console.error("Error fetching addresses:", error);
+        }
+      },
+      async fetchOrganizers() {
+        try {
+          const response = await fetch("http://localhost:3000/api/organizers");
+          this.organizers = await response.json();
+        } catch (error) {
+          console.error("Error fetching organizers:", error);
+        }
+      },
+      async createEvent() {
+        try {
+          const response = await fetch("http://localhost:3000/api/events", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...this.newEvent,
+              categories: this.selectedCategories, // Include selected categories
+            }),
+          });
+  
+          if (response.ok) {
+            alert("Event created successfully!");
+            this.$emit("refresh-events");
+            this.$emit("close");
+          } else {
+            alert("Failed to create event.");
+          }
+        } catch (error) {
+          console.error("Error creating event:", error);
+        }
+      },
     },
-  },
-};
-</script>
+  };
+  </script>
   

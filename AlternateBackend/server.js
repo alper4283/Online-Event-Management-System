@@ -199,20 +199,37 @@ app.get("/api/addresses", async (req, res) => {
 
 
 app.post("/api/events", async (req, res) => {
-  const { title, description, eventType, capacity, date, startTime, endTime, addressId, organizerId } = req.body;
+  const { title, description, eventType, capacity, date, startTime, endTime, addressId, organizerId, categories } = req.body;
 
   try {
-    const result = await pool.query(
+    // Insert event into the Events table
+    const eventResult = await pool.query(
       `INSERT INTO events (title, description, eventtype, capacity, date, starttime, endtime, addressid, organizedby)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING eventid`,
       [title, description, eventType, capacity, date, startTime, endTime, addressId, organizerId]
     );
-    res.status(201).json(result.rows[0]);
+
+    const eventId = eventResult.rows[0].eventid;
+
+    // Insert selected categories into EventCategories table
+    if (categories && categories.length > 0) {
+      const categoryInserts = categories.map(
+        (categoryId) => pool.query(
+          `INSERT INTO eventcategories (eventid, categoryid) VALUES ($1, $2)`,
+          [eventId, categoryId]
+        )
+      );
+
+      await Promise.all(categoryInserts);
+    }
+
+    res.status(201).json({ message: "Event created successfully", eventId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to create event." });
   }
 });
+
 
 
 
