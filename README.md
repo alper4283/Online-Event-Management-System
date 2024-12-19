@@ -4,6 +4,7 @@
 The Online Event Management System is a web-based platform designed to connect users with events and like-minded individuals. It allows users to discover, register for, and participate in various events, as well as to organize and manage their own events with ease.
 
 ## Tools and Frameworks Used
+- **AlternateBackend**: Node.js
 - **Backend**: Spring Framework
 - **Frontend**: Vue.js
 - **Database**: PostgreSQL
